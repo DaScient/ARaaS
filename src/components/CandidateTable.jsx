@@ -34,6 +34,7 @@ function ScoreBar({ value, color, label }) {
 }
 
 export default function CandidateTable({ candidates, jobs }) {
+  const columnCount = 7
   const [selectedJobId, setSelectedJobId] = useState(jobs[0]?.job_id || null)
   const [expandedId, setExpandedId] = useState(null)
   const [weights, setWeights] = useState({ skill: 0.5, education: 0.2, experience: 0.3 })
@@ -188,7 +189,7 @@ export default function CandidateTable({ candidates, jobs }) {
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
                         >
-                          <td colSpan={7} className="px-6 py-4 bg-slate-800/30 border-b border-slate-800/60">
+                          <td colSpan={columnCount} className="px-6 py-4 bg-slate-800/30 border-b border-slate-800/60">
                             <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
                               <div className="space-y-2">
                                 <p className="text-slate-500 text-xs font-medium mb-2">Score Breakdown</p>

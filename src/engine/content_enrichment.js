@@ -27,11 +27,22 @@ const INTERVIEW_WINDOWS = [
   'Tue/Thu preferred',
 ]
 const CALENDAR_PREFS = ['Google Calendar', 'Microsoft Outlook', 'Either']
+const NOTICE_DAYS = [14, 21, 30, 45, 60]
+const FAST_NOTICE_THRESHOLD = NOTICE_DAYS[1]
+const MEDIUM_NOTICE_THRESHOLD = NOTICE_DAYS[2]
+
+function stableKey(candidate, idx) {
+  if (Number.isFinite(Number(candidate?.candidate_id))) return Number(candidate.candidate_id)
+  const text = `${candidate?.name || ''}|${candidate?.email_hash || ''}|${candidate?.college || ''}|${idx}`
+  let hash = 0
+  for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) >>> 0
+  return hash
+}
 
 export function enrichCandidates(candidates = []) {
   return candidates.map((c, idx) => {
-    const key = Number(c.candidate_id || idx)
-    const notice = [14, 21, 30, 45, 60][key % 5]
+    const key = stableKey(c, idx)
+    const notice = NOTICE_DAYS[key % NOTICE_DAYS.length]
     return {
       ...c,
       work_preference: WORK_PREFS[key % WORK_PREFS.length],
@@ -42,7 +53,9 @@ export function enrichCandidates(candidates = []) {
       interview_window: INTERVIEW_WINDOWS[key % INTERVIEW_WINDOWS.length],
       calendar_preference: CALENDAR_PREFS[key % CALENDAR_PREFS.length],
       portfolio_focus: ['ML Platform', 'Applied NLP', 'Computer Vision', 'Analytics', 'Recommenders'][key % 5],
-      availability_band: notice <= 21 ? '0-3 weeks' : notice <= 30 ? '3-4 weeks' : '4+ weeks',
+      availability_band: notice <= FAST_NOTICE_THRESHOLD ? '0-3 weeks'
+        : notice <= MEDIUM_NOTICE_THRESHOLD ? '3-4 weeks'
+        : '4+ weeks',
     }
   })
 }

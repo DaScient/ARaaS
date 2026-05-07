@@ -158,9 +158,13 @@ function ScheduleCard({ candidate, onSchedule, scheduled, calendarProvider, sche
 
       {scheduled && (
         <div className="mt-2 text-slate-500 text-xs">
-          {scheduled.interviewType.label} ({scheduled.mode}) with {scheduled.interviewerObj.name} on{' '}
-          {scheduled.slot.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-          {' '}· {scheduled.calendarProvider} · scheduler TZ {scheduled.schedulerTimezone}
+          <span>{scheduled.interviewType.label} ({scheduled.mode})</span>
+          {' '}with <span>{scheduled.interviewerObj.name}</span> on{' '}
+          <span>
+            {scheduled.slot.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </span>
+          {' '}· <span>{scheduled.calendarProvider}</span>
+          {' '}· <span>scheduler TZ {scheduled.schedulerTimezone}</span>
         </div>
       )}
     </div>

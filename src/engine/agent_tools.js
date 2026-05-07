@@ -358,23 +358,25 @@ export const TOOLS = [
         slotIso: { type: 'string', description: 'Interview start datetime in ISO format (optional)' },
         provider: { type: 'string', description: 'Calendar provider, e.g. google or outlook' },
         interviewType: { type: 'string', description: 'Interview type label' },
+        attendeeDomain: { type: 'string', description: 'Domain used for redacted attendee addresses (default example.invalid)' },
       },
       required: ['candidate'],
     },
-    run({ candidate, job, slotIso, provider = 'google', interviewType = 'Technical Interview' }, { candidates, jobs }) {
+    run({ candidate, job, slotIso, provider = 'google', interviewType = 'Technical Interview', attendeeDomain = 'example.invalid' }, { candidates, jobs }) {
       const c = findCandidate(candidates, candidate)
       if (!c) return { error: `No candidate matching "${candidate}"` }
       const targetJob = findJob(jobs, job) || jobs[0]
       if (!targetJob) return { error: 'No jobs available' }
       const start = slotIso ? new Date(slotIso) : new Date(Date.now() + 48 * 60 * 60 * 1000)
       const end = new Date(start.getTime() + 60 * 60 * 1000)
+      const safeDomain = String(attendeeDomain || 'example.invalid').replace(/[^a-z0-9.-]/gi, '') || 'example.invalid'
       return {
         provider: String(provider).toLowerCase(),
         event: {
           title: `${interviewType} · ${targetJob.role}`,
           start: start.toISOString(),
           end: end.toISOString(),
-          attendees: [`candidate-${c.candidate_id}@redacted.local`, 'hiring-panel@company.local'],
+          attendees: [`candidate-${c.candidate_id}@${safeDomain}`, `hiring-panel@${safeDomain}`],
           location: c.work_preference === 'On-site' ? targetJob.location : 'Video conference link',
           timezone: c.timezone || 'UTC',
           metadata: {
