@@ -125,6 +125,7 @@ export default function CandidateTable({ candidates, jobs }) {
                 <th className="px-4 py-3 text-slate-500 font-medium text-xs">Candidate</th>
                 <th className="px-4 py-3 text-slate-500 font-medium text-xs">Location</th>
                 <th className="px-4 py-3 text-slate-500 font-medium text-xs">Exp</th>
+                <th className="px-4 py-3 text-slate-500 font-medium text-xs">Availability</th>
                 <th className="px-4 py-3 text-slate-500 font-medium text-xs">Match Score</th>
                 <th className="px-4 py-3 text-slate-500 font-medium text-xs">Source</th>
               </tr>
@@ -149,6 +150,9 @@ export default function CandidateTable({ candidates, jobs }) {
                       </td>
                       <td className="px-4 py-3 text-slate-400 text-xs">{c.location}</td>
                       <td className="px-4 py-3 text-slate-300">{c.years_experience}y</td>
+                      <td className="px-4 py-3 text-slate-400 text-xs">
+                        {c.availability_band || `${c.notice_period_days || 30} days`}
+                      </td>
                       <td className="px-4 py-3 w-40">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -184,8 +188,8 @@ export default function CandidateTable({ candidates, jobs }) {
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
                         >
-                          <td colSpan={6} className="px-6 py-4 bg-slate-800/30 border-b border-slate-800/60">
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                          <td colSpan={7} className="px-6 py-4 bg-slate-800/30 border-b border-slate-800/60">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
                               <div className="space-y-2">
                                 <p className="text-slate-500 text-xs font-medium mb-2">Score Breakdown</p>
                                 <ScoreBar value={c.skillScore}      label="Skills" />
@@ -195,6 +199,15 @@ export default function CandidateTable({ candidates, jobs }) {
                               <div>
                                 <p className="text-slate-500 text-xs font-medium mb-2">Skills</p>
                                 <p className="text-slate-300 text-xs leading-5">{c.skills}</p>
+                              </div>
+                              <div>
+                                <p className="text-slate-500 text-xs font-medium mb-2">Recruiter Attributes</p>
+                                <div className="space-y-1 text-xs text-slate-400">
+                                  <p>Work preference: <span className="text-slate-300">{c.work_preference || '—'}</span></p>
+                                  <p>Timezone: <span className="text-slate-300">{c.timezone || '—'}</span></p>
+                                  <p>Notice period: <span className="text-slate-300">{c.notice_period_days || '—'} days</span></p>
+                                  <p>Interview window: <span className="text-slate-300">{c.interview_window || '—'}</span></p>
+                                </div>
                               </div>
                               <div>
                                 <p className="text-slate-500 text-xs font-medium mb-2">Resume Snippet</p>

@@ -11,7 +11,7 @@
 import { useState, useMemo } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar, Legend, Cell,
+  ResponsiveContainer, BarChart, Bar, Cell,
 } from 'recharts'
 import { motion } from 'framer-motion'
 
@@ -105,6 +105,24 @@ export default function AnalyticsDashboard({ candidates, applications, jobs }) {
     return labels.map((label, i) => ({ label, count: counts[i] }))
   }, [applications])
 
+  const availabilityData = useMemo(() => {
+    const counts = {}
+    candidates.forEach(c => {
+      const key = c.availability_band || 'Unknown'
+      counts[key] = (counts[key] || 0) + 1
+    })
+    return Object.entries(counts).map(([band, count]) => ({ band, count }))
+  }, [candidates])
+
+  const workPreferenceData = useMemo(() => {
+    const counts = {}
+    candidates.forEach(c => {
+      const key = c.work_preference || 'Unknown'
+      counts[key] = (counts[key] || 0) + 1
+    })
+    return Object.entries(counts).map(([name, count]) => ({ name, count }))
+  }, [candidates])
+
   return (
     <div className="space-y-4">
       {/* KPI cards */}
@@ -173,6 +191,36 @@ export default function AnalyticsDashboard({ candidates, applications, jobs }) {
               <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
               <Tooltip contentStyle={TOOLTIP_STYLE} />
               <Bar dataKey="count" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5">
+          <h2 className="text-white font-semibold text-sm mb-4">Candidate Availability Bands</h2>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={availabilityData} margin={{ top: 5, right: 10, bottom: 20, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e2130" />
+              <XAxis dataKey="band" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Bar dataKey="count" fill="#34d399" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5">
+          <h2 className="text-white font-semibold text-sm mb-4">Work Preference Mix</h2>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={workPreferenceData} margin={{ top: 5, right: 10, bottom: 20, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e2130" />
+              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                {workPreferenceData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
