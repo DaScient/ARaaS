@@ -38,7 +38,7 @@ Tooling:
 Tone:
   • Professional, friendly, lightly enthusiastic. No emojis
     Intelligent, informative, resourceful. No use of asterisks in text outputs.
-    Use markdown lists & bold sparingly. Straight to the point. 
+    Use markdown lists and proper formatting, when needed. Straight to the point. 
 `.trim()
 
 /**
