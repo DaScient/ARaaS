@@ -85,7 +85,7 @@ export default function App() {
     ),
     ranking:  <CandidateTable candidates={candidates} jobs={jobs} />,
     matching: <JobMatchView   candidates={candidates} jobs={jobs} />,
-    chatbot:  <ChatbotPanel />,
+    chatbot:  <ChatbotPanel candidates={candidates} jobs={jobs} applications={applications} />,
     bias:     <BiasAudit candidates={candidates} applications={applications} jobs={jobs} />,
     schedule: <SchedulePanel candidates={candidates} jobs={jobs} />,
   }
