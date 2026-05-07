@@ -1,0 +1,42 @@
+[
+  {
+    "id": "playbook-screening",
+    "title": "Structured Screening Playbook",
+    "category": "Interviewing",
+    "summary": "Standardized question flow for location, experience, skills, education, salary, and notice period.",
+    "url_label": "Internal Screening Guide",
+    "owner": "Talent Ops"
+  },
+  {
+    "id": "playbook-bias",
+    "title": "Bias Mitigation Checklist",
+    "category": "Compliance",
+    "summary": "Pre-interview and post-interview rubric checks to reduce evaluator drift and demographic bias.",
+    "url_label": "DEI Audit Checklist",
+    "owner": "People Analytics"
+  },
+  {
+    "id": "playbook-offer",
+    "title": "Offer Calibration Matrix",
+    "category": "Compensation",
+    "summary": "Compensation guidance by level, market, and skill domain to speed approvals.",
+    "url_label": "Offer Band Matrix",
+    "owner": "Comp Committee"
+  },
+  {
+    "id": "playbook-calendar",
+    "title": "Calendar Integration Runbook",
+    "category": "Operations",
+    "summary": "Google and Outlook setup notes, ICS fallback steps, and interviewer conflict escalation path.",
+    "url_label": "Calendar Runbook",
+    "owner": "Recruiting Systems"
+  },
+  {
+    "id": "playbook-scorecard",
+    "title": "Interview Scorecard Rubric",
+    "category": "Interviewing",
+    "summary": "Unified rubric for technical depth, communication, collaboration, and role fit.",
+    "url_label": "Scorecard Template",
+    "owner": "Hiring Excellence"
+  }
+]

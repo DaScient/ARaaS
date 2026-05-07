@@ -169,9 +169,16 @@ const SUGGESTIONS = [
   'Show me pipeline stats and the strongest source of hires.',
   "I'd like to apply — what roles are open?",
   'Find candidates with PyTorch and MLOps experience.',
+  'Show quick-start candidates who can join within 30 days.',
+  'What recruiter resources exist for interview scorecards and bias checks?',
 ]
 
-export default function ChatbotPanel({ candidates = [], jobs = [], applications = [] }) {
+export default function ChatbotPanel({
+  candidates = [],
+  jobs = [],
+  applications = [],
+  recruiterResources = [],
+}) {
   const [config, setConfig]     = useState(() => loadConfig())
   const [history, setHistory]   = useState(() => {
     const cfg = loadConfig()
@@ -191,10 +198,10 @@ export default function ChatbotPanel({ candidates = [], jobs = [], applications 
   const endRef = useRef(null)
 
   // Persistent screening profile carried across tool calls in one session.
-  const ctxRef = useRef({ candidates, jobs, applications, screeningProfile: {} })
+  const ctxRef = useRef({ candidates, jobs, applications, recruiterResources, screeningProfile: {} })
   useEffect(() => {
-    ctxRef.current = { ...ctxRef.current, candidates, jobs, applications }
-  }, [candidates, jobs, applications])
+    ctxRef.current = { ...ctxRef.current, candidates, jobs, applications, recruiterResources }
+  }, [candidates, jobs, applications, recruiterResources])
 
   // Visible message stream (assistant + user only, ignoring tool/system).
   const visible = useMemo(() => history.filter(m => m.role === 'user' || (m.role === 'assistant' && m.content)), [history])
@@ -380,7 +387,22 @@ export default function ChatbotPanel({ candidates = [], jobs = [], applications 
           <li>🧠 <span className="text-slate-300">extract_entities_from_text</span> — resume NER</li>
           <li>📝 <span className="text-slate-300">record_screening_answer</span> — structured screening</li>
           <li>📅 <span className="text-slate-300">suggest_interview_slots</span> — calendar suggestions</li>
+          <li>🚀 <span className="text-slate-300">find_quick_start_candidates</span> — fast-availability talent</li>
+          <li>📚 <span className="text-slate-300">get_recruiter_resources</span> — playbooks and templates</li>
+          <li>🗓️ <span className="text-slate-300">build_calendar_payload</span> — calendar event preview</li>
         </ul>
+
+        <div className="pt-3 border-t border-slate-800">
+          <p className="text-slate-500 text-xs font-medium mb-2">Recruiter Resources</p>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {recruiterResources.slice(0, 5).map(r => (
+              <div key={r.id} className="rounded-lg border border-slate-800 bg-slate-800/40 px-2.5 py-2">
+                <p className="text-[11px] text-slate-200">{r.title}</p>
+                <p className="text-[10px] text-slate-500">{r.category} · {r.owner}</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="pt-3 border-t border-slate-800">
           <p className="text-slate-500 text-xs font-medium mb-2">Last turn · tool trace</p>

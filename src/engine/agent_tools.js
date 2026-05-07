@@ -52,6 +52,12 @@ function slim(c) {
     field_of_study: c.field_of_study,
     skills: c.skills,
     salary_expectation: c.salary_expectation,
+    work_preference: c.work_preference,
+    timezone: c.timezone,
+    notice_period_days: c.notice_period_days,
+    availability_band: c.availability_band,
+    interview_window: c.interview_window,
+    calendar_preference: c.calendar_preference,
   }
 }
 
@@ -72,6 +78,24 @@ function slimJob(j) {
 // ── Tool definitions ─────────────────────────────────────────────────────────
 
 export const TOOLS = [
+  {
+    name: 'get_recruiter_resources',
+    description: 'List recruiter playbooks/checklists/templates available inside ARaaS for interviews, compliance, compensation, or scheduling.',
+    parameters: {
+      type: 'object',
+      properties: {
+        category: { type: 'string', description: 'Optional category filter like Interviewing, Compliance, Compensation, Operations' },
+      },
+    },
+    run({ category }, { recruiterResources = [] }) {
+      let resources = recruiterResources
+      if (truthy(category)) {
+        resources = resources.filter(r => (r.category || '').toLowerCase().includes(category.toLowerCase()))
+      }
+      return { count: resources.length, resources }
+    },
+  },
+
   {
     name: 'list_jobs',
     description: 'List open jobs. Use this when the user asks what roles are available, or before referring to a specific job.',
@@ -102,6 +126,36 @@ export const TOOLS = [
       const job = findJob(jobs, query)
       if (!job) return { error: `No job matching "${query}"` }
       return { job }
+    },
+  },
+
+  {
+    name: 'find_quick_start_candidates',
+    description: 'Find candidates who can start soon based on notice period and optional timezone/work-preference filters.',
+    parameters: {
+      type: 'object',
+      properties: {
+        maxNoticeDays: { type: 'integer', description: 'Maximum notice period in days (default 30)' },
+        timezone: { type: 'string', description: 'Optional timezone token filter, e.g. PT or ET' },
+        workPreference: { type: 'string', description: 'Optional filter: Remote, Hybrid, or On-site' },
+        topK: { type: 'integer', description: 'How many candidates to return (default 8, max 25)' },
+      },
+    },
+    run({ maxNoticeDays = 30, timezone, workPreference, topK = 8 }, { candidates }) {
+      const cap = Math.max(1, Math.min(25, Math.floor(topK) || 8))
+      const maxNotice = Math.max(0, Math.floor(maxNoticeDays) || 30)
+      let out = candidates.filter(c => Number(c.notice_period_days || 999) <= maxNotice)
+      if (truthy(timezone)) {
+        out = out.filter(c => String(c.timezone || '').toLowerCase().includes(String(timezone).toLowerCase()))
+      }
+      if (truthy(workPreference)) {
+        out = out.filter(c => String(c.work_preference || '').toLowerCase().includes(String(workPreference).toLowerCase()))
+      }
+      out = out
+        .sort((a, b) => Number(a.notice_period_days || 999) - Number(b.notice_period_days || 999))
+        .slice(0, cap)
+        .map(slim)
+      return { count: out.length, maxNoticeDays: maxNotice, candidates: out }
     },
   },
 
@@ -290,6 +344,49 @@ export const TOOLS = [
         slots.push(d.toISOString().slice(0, 16) + ' UTC')
       }
       return { suggested: slots }
+    },
+  },
+
+  {
+    name: 'build_calendar_payload',
+    description: 'Create a calendar-event payload preview for interview scheduling (Google/Outlook compatible fields, demo only).',
+    parameters: {
+      type: 'object',
+      properties: {
+        candidate: { type: 'string', description: 'Candidate id or name substring' },
+        job: { type: 'string', description: 'Job id or role substring' },
+        slotIso: { type: 'string', description: 'Interview start datetime in ISO format (optional)' },
+        provider: { type: 'string', description: 'Calendar provider, e.g. google or outlook' },
+        interviewType: { type: 'string', description: 'Interview type label' },
+        attendeeDomain: { type: 'string', description: 'Domain used for redacted attendee addresses (default example.invalid)' },
+      },
+      required: ['candidate'],
+    },
+    run({ candidate, job, slotIso, provider = 'google', interviewType = 'Technical Interview', attendeeDomain = 'example.invalid' }, { candidates, jobs }) {
+      const c = findCandidate(candidates, candidate)
+      if (!c) return { error: `No candidate matching "${candidate}"` }
+      const targetJob = findJob(jobs, job) || jobs[0]
+      if (!targetJob) return { error: 'No jobs available' }
+      const start = slotIso ? new Date(slotIso) : new Date(Date.now() + 48 * 60 * 60 * 1000)
+      const end = new Date(start.getTime() + 60 * 60 * 1000)
+      const safeDomain = String(attendeeDomain || 'example.invalid').replace(/[^a-z0-9.-]/gi, '') || 'example.invalid'
+      return {
+        provider: String(provider).toLowerCase(),
+        event: {
+          title: `${interviewType} · ${targetJob.role}`,
+          start: start.toISOString(),
+          end: end.toISOString(),
+          attendees: [`candidate-${c.candidate_id}@${safeDomain}`, `hiring-panel@${safeDomain}`],
+          location: c.work_preference === 'On-site' ? targetJob.location : 'Video conference link',
+          timezone: c.timezone || 'UTC',
+          metadata: {
+            candidate_id: c.candidate_id,
+            job_id: targetJob.job_id,
+            calendar_preference: c.calendar_preference || 'Either',
+            interview_window: c.interview_window || 'Flexible',
+          },
+        },
+      }
     },
   },
 ]

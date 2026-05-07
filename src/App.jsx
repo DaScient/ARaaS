@@ -17,6 +17,7 @@ import JobMatchView       from './components/JobMatchView.jsx'
 import ChatbotPanel       from './components/ChatbotPanel.jsx'
 import BiasAudit          from './components/BiasAudit.jsx'
 import SchedulePanel      from './components/SchedulePanel.jsx'
+import { enrichCandidates } from './engine/content_enrichment.js'
 
 const BASE = import.meta.env.BASE_URL   // '/ARaaS/' on GitHub Pages, '/' locally
 
@@ -31,6 +32,7 @@ export default function App() {
   const [candidates, setCands]  = useState([])
   const [jobs, setJobs]         = useState([])
   const [applications, setApps] = useState([])
+  const [recruiterResources, setRecruiterResources] = useState([])
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState(null)
 
@@ -39,11 +41,13 @@ export default function App() {
       fetchJSON('candidates.json'),
       fetchJSON('jobs.json'),
       fetchJSON('applications.json'),
+      fetchJSON('recruiter_resources.json'),
     ])
-      .then(([cands, jobsData, apps]) => {
-        setCands(cands)
+      .then(([cands, jobsData, apps, resources]) => {
+        setCands(enrichCandidates(cands))
         setJobs(jobsData)
         setApps(apps)
+        setRecruiterResources(resources)
         setLoading(false)
       })
       .catch(err => {
@@ -85,9 +89,9 @@ export default function App() {
     ),
     ranking:  <CandidateTable candidates={candidates} jobs={jobs} />,
     matching: <JobMatchView   candidates={candidates} jobs={jobs} />,
-    chatbot:  <ChatbotPanel candidates={candidates} jobs={jobs} applications={applications} />,
+    chatbot:  <ChatbotPanel candidates={candidates} jobs={jobs} applications={applications} recruiterResources={recruiterResources} />,
     bias:     <BiasAudit candidates={candidates} applications={applications} jobs={jobs} />,
-    schedule: <SchedulePanel candidates={candidates} jobs={jobs} />,
+    schedule: <SchedulePanel candidates={candidates} jobs={jobs} recruiterResources={recruiterResources} />,
   }
 
   return (
@@ -119,4 +123,3 @@ export default function App() {
     </div>
   )
 }
-
