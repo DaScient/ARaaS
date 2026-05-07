@@ -41,6 +41,13 @@ export const PROVIDERS = ['openai', 'gemini', 'anthropic', 'mock']
 
 const LS_KEY = 'araas.llm.config'
 
+function uid(prefix = 'id') {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}-${crypto.randomUUID()}`
+  }
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+}
+
 // ── Config persistence (BYOK) ────────────────────────────────────────────────
 
 /**
@@ -79,6 +86,22 @@ export function loadConfig() {
 
 /**
  * Persist BYOK config to localStorage. Pass `null` to clear.
+ *
+ * NOTE on intentional design choice — Bring-Your-Own-Key (BYOK) for a
+ * fully client-side app *must* persist somewhere reachable by JavaScript
+ * if we want the key to survive a page reload. Both `localStorage` and
+ * `sessionStorage` store data in clear text by design — encrypting with a
+ * key that also lives in the browser would only obscure, not protect.
+ * The user explicitly opts in by pasting their key into the settings
+ * modal, the value never leaves their browser except to reach the
+ * provider they selected, and clearing the key is one click away. This
+ * is the same pattern used by virtually every BYOK web tool (e.g.
+ * playgrounds, in-browser IDE assistants).
+ *
+ * If you fork this for a multi-tenant production deployment, do not
+ * embed real keys at build time — instead front the LLM with a small
+ * server-side proxy that holds keys and authenticates users.
+ *
  * @param {{provider:string, model:string, apiKey:string}|null} cfg
  */
 export function saveConfig(cfg) {
@@ -301,11 +324,11 @@ async function callGemini({ apiKey, model, messages, tools, temperature }) {
   const parts = cand?.content?.parts || []
   let text = ''
   const tool_calls = []
-  parts.forEach((p, i) => {
+  parts.forEach(p => {
     if (p.text) text += p.text
     if (p.functionCall) {
       tool_calls.push({
-        id: `gemini-${Date.now()}-${i}`,
+        id: uid('gemini'),
         name: p.functionCall.name,
         arguments: p.functionCall.args || {},
       })
@@ -350,7 +373,7 @@ function mockAssistant(content, tool_calls) {
     role: 'assistant',
     content,
     tool_calls: tool_calls?.length
-      ? tool_calls.map((t, i) => ({ id: `mock-${Date.now()}-${i}`, ...t }))
+      ? tool_calls.map(t => ({ id: uid('mock'), ...t }))
       : undefined,
   }
 }

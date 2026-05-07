@@ -94,7 +94,7 @@ function SettingsModal({ open, initial, onClose, onSave }) {
         <div>
           <h3 className="text-white font-semibold text-base">Chatbot Settings</h3>
           <p className="text-slate-400 text-xs mt-1">
-            Keys are stored only in your browser&rsquo;s localStorage and sent directly
+            Keys are stored only in your browser&apos;s localStorage and sent directly
             to the provider you select. Use <span className="text-slate-300">mock</span> for
             an offline demo.
           </p>
@@ -409,7 +409,7 @@ export default function ChatbotPanel({ candidates = [], jobs = [], applications 
         </div>
 
         <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-600 leading-5">
-          Keys live only in your browser&rsquo;s localStorage. Click&nbsp;⚙️ to configure.
+          Keys live only in your browser&apos;s localStorage. Click ⚙️ to configure.
         </div>
       </div>
 

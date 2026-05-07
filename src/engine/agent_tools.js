@@ -117,7 +117,7 @@ export const TOOLS = [
       required: ['query'],
     },
     run({ query, topK = 5 }, { candidates }) {
-      const k = Math.max(1, Math.min(25, topK | 0 || 5))
+      const k = Math.max(1, Math.min(25, Math.floor(topK) || 5))
       const q = (query || '').toLowerCase()
       const terms = q.split(/\s+/).filter(Boolean)
       const scored = candidates
@@ -165,7 +165,7 @@ export const TOOLS = [
       },
     },
     run({ job, topK = 5 }, { candidates, jobs }) {
-      const k = Math.max(1, Math.min(20, topK | 0 || 5))
+      const k = Math.max(1, Math.min(20, Math.floor(topK) || 5))
       const target = findJob(jobs, job) || jobs[0]
       if (!target) return { error: 'No jobs available' }
       const ranked = rankCandidates(candidates, target).slice(0, k).map(c => ({
@@ -197,7 +197,7 @@ export const TOOLS = [
     run({ candidate, topK = 5 }, { candidates, jobs }) {
       const c = findCandidate(candidates, candidate)
       if (!c) return { error: `No candidate matching "${candidate}"` }
-      const k = Math.max(1, Math.min(20, topK | 0 || 5))
+      const k = Math.max(1, Math.min(20, Math.floor(topK) || 5))
       const ranked = rankJobsForCandidate(c, jobs).slice(0, k).map(j => ({
         job_id: j.job_id, role: j.role, location: j.location, matchScore: j.matchScore,
       }))
@@ -283,7 +283,7 @@ export const TOOLS = [
       const now = new Date()
       let d = new Date(now)
       d.setHours(10, 0, 0, 0)
-      while (slots.length < Math.min(8, count | 0 || 3)) {
+      while (slots.length < Math.min(8, Math.floor(count) || 3)) {
         d = new Date(d.getTime() + 24 * 60 * 60 * 1000)
         const dow = d.getDay()
         if (dow === 0 || dow === 6) continue
